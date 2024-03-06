@@ -54,7 +54,7 @@ using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace px4_msgs::msg;
 
-/* std::chrono 및 px4_msgs::msg 네임스페이스를 사용* /
+/* std::chrono 및 px4_msgs::msg 네임스페이스를 사용*/
 
 class OffboardControl : public rclcpp::Node
 {
@@ -70,7 +70,7 @@ public:
 
 		auto timer_callback = [this]() -> void {  
   
-                        /*OffboardControl 클래스를 정의하고, rclcpp::Node를 상속. 이 클래스는 ROS 2의 노드로 동작.
+                        /* OffboardControl 클래스를 정의하고, rclcpp::Node를 상속. 이 클래스는 ROS 2의 노드로 동작.
                         생성자에서 ROS 2 노드의 퍼블리셔를 생성.
                         타이머 콜백 함수를 설정. */
                         
