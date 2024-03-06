@@ -48,9 +48,13 @@
 #include <chrono>
 #include <iostream>
 
+/* 사용할 ROS 2 메시지 및 라이브러리를 가져오는 부분 */
+
 using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace px4_msgs::msg;
+
+/* std::chrono 및 px4_msgs::msg 네임스페이스를 사용* /
 
 class OffboardControl : public rclcpp::Node
 {
@@ -64,8 +68,12 @@ public:
 
 		offboard_setpoint_counter_ = 0;
 
-		auto timer_callback = [this]() -> void {
-
+		auto timer_callback = [this]() -> void {  
+  
+                        /*OffboardControl 클래스를 정의하고, rclcpp::Node를 상속. 이 클래스는 ROS 2의 노드로 동작.
+                        생성자에서 ROS 2 노드의 퍼블리셔를 생성.
+                        타이머 콜백 함수를 설정. */
+                        
 			if (offboard_setpoint_counter_ == 10) {
 				// Change to Offboard mode after 10 setpoints
 				this->publish_vehicle_command(VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 1, 6);
@@ -74,9 +82,13 @@ public:
 				this->arm();
 			}
 
+			/* 오프보드 제어 모드로 전환하기 전에, 드론을 ARM하고 비행 준비 상태로 변경.*/
+
 			// offboard_control_mode needs to be paired with trajectory_setpoint
 			publish_offboard_control_mode();
 			publish_trajectory_setpoint();
+
+			/* 오프보드 제어 모드 및 Trajectory Setpoint 메시지를 게시.*/
 
 			// stop the counter after reaching 11
 			if (offboard_setpoint_counter_ < 11) {
@@ -86,8 +98,12 @@ public:
 		timer_ = this->create_wall_timer(100ms, timer_callback);
 	}
 
+	/* 타이머를 설정하고, 주기적으로 실행되는 타이머 콜백 함수를 등록.*/
+
 	void arm();
 	void disarm();
+
+	/* ARM 및 DISARM 메서드를 선언.*/
 
 private:
 	rclcpp::TimerBase::SharedPtr timer_;
@@ -105,9 +121,8 @@ private:
 	void publish_vehicle_command(uint16_t command, float param1 = 0.0, float param2 = 0.0);
 };
 
-/**
- * @brief Send a command to Arm the vehicle
- */
+/*멤버 변수와 메서드를 선언.*/
+
 void OffboardControl::arm()
 {
 	publish_vehicle_command(VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 1.0);
@@ -115,9 +130,8 @@ void OffboardControl::arm()
 	RCLCPP_INFO(this->get_logger(), "Arm command send");
 }
 
-/**
- * @brief Send a command to Disarm the vehicle
- */
+/* 드론을 ARM하는 메서드를 구현.*/
+
 void OffboardControl::disarm()
 {
 	publish_vehicle_command(VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0);
@@ -125,10 +139,8 @@ void OffboardControl::disarm()
 	RCLCPP_INFO(this->get_logger(), "Disarm command send");
 }
 
-/**
- * @brief Publish the offboard control mode.
- *        For this example, only position and altitude controls are active.
- */
+/* 드론을 DISARM하는 메서드를 구현.*/
+
 void OffboardControl::publish_offboard_control_mode()
 {
 	OffboardControlMode msg{};
@@ -141,11 +153,8 @@ void OffboardControl::publish_offboard_control_mode()
 	offboard_control_mode_publisher_->publish(msg);
 }
 
-/**
- * @brief Publish a trajectory setpoint
- *        For this example, it sends a trajectory setpoint to make the
- *        vehicle hover at 5 meters with a yaw angle of 180 degrees.
- */
+/*오프보드 제어 모드를 게시하는 메서드를 구현.*/
+
 void OffboardControl::publish_trajectory_setpoint()
 {
 	TrajectorySetpoint msg{};
@@ -156,11 +165,11 @@ void OffboardControl::publish_trajectory_setpoint()
 }
 
 /**
- * @brief Publish vehicle commands
- * @param command   Command code (matches VehicleCommand and MAVLink MAV_CMD codes)
- * @param param1    Command parameter 1
- * @param param2    Command parameter 2
+ Trajectory Setpoint 메시지를 게시하는 메서드를 구현.
+ *        For this example, it sends a trajectory setpoint to make the
+ *        vehicle hover at 5 meters with a yaw angle of 180 degrees.
  */
+
 void OffboardControl::publish_vehicle_command(uint16_t command, float param1, float param2)
 {
 	VehicleCommand msg{};
@@ -176,6 +185,13 @@ void OffboardControl::publish_vehicle_command(uint16_t command, float param1, fl
 	vehicle_command_publisher_->publish(msg);
 }
 
+/**
+ * 차량 명령을 게시하는 메서드를 구현.
+ * @param command   Command code (matches VehicleCommand and MAVLink MAV_CMD codes)
+ * @param param1    Command parameter 1
+ * @param param2    Command parameter 2
+ */
+
 int main(int argc, char *argv[])
 {
 	std::cout << "Starting offboard control node..." << std::endl;
@@ -186,3 +202,7 @@ int main(int argc, char *argv[])
 	rclcpp::shutdown();
 	return 0;
 }
+
+/* main() 함수에서 ROS 2를 초기화하고 OffboardControl 클래스의 인스턴스를 만들어 ROS 2 노드로써 실행.
+프로그램이 종료되면 ROS 2 시스템을 정리하고 프로그램이 종료됨.
+*/
